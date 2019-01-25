@@ -1,0 +1,30 @@
+<view class="weui-slider-box">
+    <view id="sliderValue" class="weui-slider-box-value">
+      <!-- <text>{{sliderMinValue}}</text> - <text>{{_sliderMaxValue}}</text> -->
+    </view>
+    <view class="weui-slider">
+        <view id="sliderInner" class="weui-slider-inner">
+            <view id="sliderTrackMax" style="width: {{sliderMaxLeft}}%;" class="weui-slider-track-max"></view>
+            <view id="sliderTrackMin" style="width: {{sliderMinLeft}}%;" class="weui-slider-track-min"></view>
+        </view>
+        <view style='position:relative;height:28px;'>
+          <view class='weui-slider-handler'>
+            <view id="sliderHandlerMax" style='left:{{sliderMaxLeft}}%' data-id='sliderHandlerMax'  bindtouchstart="touchSlider" bindtouchmove='moveSlider' bindtouchend='endSlider' class="weui-slider-handler-max">
+              <image class='view-image' src='/images/home/button.png'></image>
+            </view>
+            <view id="sliderHandlerMin" style='left:{{sliderMinLeft}}%' data-id='sliderHandlerMin' bindtouchstart="touchSlider" bindtouchmove='moveSlider' bindtouchend='endSlider' class="weui-slider-handler-min">
+              <image class='view-image' src='/images/home/button.png'></image>
+            </view>
+          </view>
+        </view>
+    </view>
+    <view id="sliderScale" class="weui-slider-box-scale">
+      <view class='scale-name' wx:key='*this' wx:for="{{sliderValue}}">{{item}}</view>
+      <!-- <view class='scale-name'>1000</view>
+      <view class='scale-name'>2000</view>
+      <view class='scale-name'>3000</view>
+      <view class='scale-name'>4000</view>
+      <view class='scale-name'>5000</view>
+      <view class='scale-name'>不限</view> -->
+    </view>
+</view>

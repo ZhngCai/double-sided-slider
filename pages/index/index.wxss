@@ -1,0 +1,27 @@
+
+
+.margin_b160 {
+  margin-bottom: 160rpx;
+}
+
+.margin_b240 {
+  margin-bottom: 240rpx;
+}
+
+page {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+
+
+.container{
+  position: absolute;
+  width: 100%;
+  height: 300px;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+}

@@ -1,0 +1,11 @@
+<view class='container'>
+ <slider-component 
+    bind:movecom='moveComSlider' 
+    slider-min-value='{{slider.sliderMinValue}}' 
+    slider-min-left='{{slider.sliderMinLeft}}' 
+    slider-max-value='{{slider.sliderMaxValue}}' 
+    slider-max-left='{{slider.sliderMaxLeft}}' 
+    step='{{slider.step}}' 
+    is-unlimite='{{slider.isUnlimite}}'
+  ></slider-component>
+ </view>

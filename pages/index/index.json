@@ -1,0 +1,5 @@
+{
+  "usingComponents": {
+    "slider-component": "/components/home/sliderBar/sliderBar"
+  }
+}
