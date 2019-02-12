@@ -1,11 +1,22 @@
 <view class='container'>
- <slider-component 
-    bind:movecom='moveComSlider' 
-    slider-min-value='{{slider.sliderMinValue}}' 
-    slider-min-left='{{slider.sliderMinLeft}}' 
-    slider-max-value='{{slider.sliderMaxValue}}' 
-    slider-max-left='{{slider.sliderMaxLeft}}' 
-    step='{{slider.step}}' 
-    is-unlimite='{{slider.isUnlimite}}'
+
+<slider  min="50" max="200" step="5" show-value />
+<!-- 
+/**
+ * sliderMin  最小值
+ * sliderMax  最大值
+ * sliderMinValue  当前最小取值
+ * sliderMinValue  当前最大取值、
+ * step       步长，取值必须大于 0，并且可被(max - min)整除
+ * 
+ */ 
+ -->
+  <slider-component
+    slider-min='0'  
+    slider-max='100' 
+    slider-min-value='10'
+    slider-max-value='100' 
+    step='5' 
   ></slider-component>
+
  </view>

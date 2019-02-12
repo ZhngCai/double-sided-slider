@@ -1,74 +1,54 @@
 // pages/slideBar/slideBar.js
 var utilMain = require('../../../utils/main.js');
-
+/**
+ * sliderMin  最小值
+ * sliderMax  最大值
+ * sliderMinValue  当前最小取值
+ * sliderMinValue  当前最大取值、
+ * step       步长，取值必须大于 0，并且可被(max - min)整除
+ * 
+ */
 Component({
   properties: {
+    sliderMin: {
+      type: Number,
+    },
+    sliderMax: {
+      type: Number,
+    },
     sliderMinValue:{
       type: Number,
-      value:0,
-      observer: function(newVal, oldVal) {
-          // 属性被改变时执行的函数（可选）
-      }
-    },
-    sliderMinLeft:{
-      type:Number,
-      value:0,
-      observer: function(newVal, oldVal) {
-          // 属性被改变时执行的函数（可选）
-      }
     },
     sliderMaxValue:{
       type: Number,
-      value:100,
-      observer: function(newVal, oldVal) {
-          // 属性被改变时执行的函数（可选）
-      }
-    },
-    sliderMaxLeft:{
-      type:Number,
-      value:100,
-      observer: function(newVal, oldVal) {
-          // 属性被改变时执行的函数（可选）
-      }
     },
     step: {
       type: Number,
-      value: 1000,
-      observer: function (newVal, oldVal) {
-        // 属性被改变时执行的函数（可选）
-        
-      }
     },
-    isUnlimite: {
-      type: Number,
-      value: 1,
-      observer: function (newVal, oldVal) {
-        // 属性被改变时执行的函数（可选）
-      }
-    }
-
   },
 
   /**
    * 页面的初始数据
    */
   data: {
+    slider: {
+      sliderMin:0,
+      sliderMax:100,
+      sliderMinLeft: 0, 
+      sliderMinValue: 0, 
+      sliderMaxLeft: 100, 
+      sliderMaxValue: 5000, 
+      step:1
+    },
     stepDis:0,
-    sliderValue:[0,'不限'],
     sliderInnerWidth:0,   //横条宽度
-    trackMaxLeft:100,
-    trackMinLeft: 0,
     touchStart:0,
-    sliderMaxLeftStart: 0,
-    sliderMaxLeftEnd: 100,
-    sliderMaxLeftEnd: 0,
+    touchStartValue:0,
   },
   ready(e) {
+
     let query = wx.createSelectorQuery().in(this);
     let that = this;
-    let min = this.properties.sliderMinValue, max = this.properties.sliderMaxValue, step = this.data.step;
-    let valArr = [];
-
     if (this.properties.sliderMinLeft < 0 | this.properties.sliderMinLeft>=100){
       wx.showToast({
         icon:"none",
@@ -83,37 +63,18 @@ Component({
       })
       return false;
     }
-    this.setData({
-      stepDis: (max - min) / step
-    })
-    for(;min < max;){
-      valArr.push(min)
-      min = min + step;
-    }
-    if(min>=max){
-      if(this.properties.isUnlimite){
-        valArr.push("不限");
-      }else{
-        valArr.push(max);
-      }
-    }
-
-    this.setData({
-      sliderValue:valArr
-    })
-    
-    let minLeft, maxLeft;
-    minLeft = Math.round(this.properties.sliderMinLeft / 100 * this.properties.stepDis) / this.properties.stepDis*100;
-    maxLeft = Math.round(this.properties.sliderMaxLeft / 100 * this.properties.stepDis) / this.properties.stepDis * 100;
-    this.triggerEvent('movecom', {
-      sliderMinLeft: minLeft,
-      sliderMaxLeft: maxLeft,
-      step: that.properties.step,
-      isUnlimite: that.properties.isUnlimite
-    })
     query.select('#sliderInner').boundingClientRect(function (res) {
+      let stepDis = res.width / (that.properties.sliderMax - that.properties.sliderMin);
       that.setData({
         sliderInnerWidth: res.width,
+        stepDis,
+        'slider.sliderMin': that.properties.sliderMin,
+        'slider.sliderMax': that.properties.sliderMax,
+        'slider.sliderMinLeft': that.properties.sliderMinValue * stepDis,
+        'slider.sliderMaxLeft': that.properties.sliderMaxValue * stepDis,
+        'slider.sliderMinValue': that.properties.sliderMinValue,
+        'slider.sliderMaxValue': that.properties.sliderMaxValue,
+        'slider.step': that.properties.step
       })
     }).exec()
   },
@@ -127,15 +88,15 @@ Component({
       if (e.currentTarget.dataset.id == 'sliderHandlerMax') {
         query.select('#sliderHandlerMax').boundingClientRect(function (res) {
           that.setData({
-            sliderMaxLeftStart: that.properties.sliderMaxLeft,
             touchStart: e.touches[0].clientX,
+            touchStartValue: that.data.slider.sliderMaxValue
           })
         }).exec()
       } else if (e.currentTarget.dataset.id == 'sliderHandlerMin') {
         query.select('#sliderHandlerMin').boundingClientRect(function (res) {
           that.setData({
-            sliderMinLeftStart: that.properties.sliderMinLeft,
             touchStart: e.touches[0].clientX,
+            touchStartValue: that.data.slider.sliderMinValue
           })
         }).exec()
       } else {
@@ -145,48 +106,44 @@ Component({
     },
     moveSlider(e) {
       var that = this;
-      let _dis = e.touches[0].clientX - this.data.touchStart;
-      let minLeft = this.properties.sliderMinLeft, minValue = this.properties.sliderMinValue, maxLeft = this.properties.sliderMaxLeft, maxValue = this.properties.sliderMaxValue, _s = this.data.stepDis;
+      let minValue = this.data.slider.sliderMinValue,
+          min = this.data.slider.sliderMin,
+          maxValue = this.data.slider.sliderMaxValue,
+          max = this.data.slider.sliderMax,
+          _s = this.data.slider.step;
+      let _dis = e.touches[0].clientX - this.data.touchStart, 
+        stepDis = this.data.stepDis;
+      let minLeft = minValue * stepDis,
+          maxLeft = maxValue * stepDis,
+          touchLeft = this.data.touchStartValue * stepDis ;
       if (e.currentTarget.dataset.id == 'sliderHandlerMax') {
-        let oLeft = this.data.sliderMaxLeftStart + Math.floor(Math.ceil((Math.abs(_dis) * _s * 2) / this.data.sliderInnerWidth) / 2) / _s * 100 * _dis / Math.abs(_dis);
-        
-        if (oLeft > 100) {
-          oLeft = 100;
-        }else if(oLeft < 0){
-          oLeft = 1 / _s*100;
+        let oLeft = touchLeft + Math.round(_dis / (stepDis*_s)) * (stepDis*_s);
+        if (oLeft > this.data.sliderInnerWidth) {
+          oLeft = this.data.sliderInnerWidth;
+        } else if (oLeft <= minLeft){
+          oLeft = minLeft + stepDis*_s;
         }else{
-          oLeft = Math.abs(oLeft);
-        }
-        if (utilMain.fixTwo(oLeft) > utilMain.fixTwo(this.properties.sliderMinLeft)) {
-          this.setData({
-            trackMaxLeft: oLeft,
-          })
-          maxLeft = oLeft + 0;
-          
-          maxValue = oLeft >= 100 ? that.data.sliderValue[that.data.sliderValue.length - 1] : Math.round(oLeft * _s / 100) * this.data.step;
           
         }
+        maxLeft = oLeft;
+        maxValue = Math.round(maxLeft / stepDis);
       } else {
-        let oLeft = this.data.sliderMinLeftStart + Math.floor(Math.ceil((Math.abs(_dis) * that.data.stepDis*2) / this.data.sliderInnerWidth) / 2) / _s * 100 * _dis / Math.abs(_dis);
+        let oLeft = touchLeft + Math.round(_dis / (stepDis * _s)) * (stepDis * _s);
         if (oLeft < 0) {
           oLeft = 0;
         }
-        oLeft = Math.abs(oLeft);
-        if (utilMain.fixTwo(oLeft) < utilMain.fixTwo(this.data.sliderMaxLeft)) {
-          this.setData({
-            trackMinLeft: oLeft,
-          })
-          minLeft = oLeft;
-          minValue = Math.round(oLeft * _s / 100) * this.data.step;
+        if (oLeft >= maxLeft){
+          oLeft = maxLeft - stepDis*_s;
         }
+        minLeft = oLeft;
+        minValue = Math.round(minLeft / stepDis);
       }
-      this.triggerEvent('movecom', {
-        sliderMinLeft: minLeft,
-        sliderMinValue:minValue,
-        sliderMaxLeft: maxLeft,
-        sliderMaxValue:maxValue,
-        step:that.properties.step,
-        isUnlimite: that.properties.isUnlimite
+
+      this.setData({
+          'slider.sliderMinLeft': minLeft, //滑块滑动比例
+          'slider.sliderMinValue': minValue, //价格滑块最小值
+          'slider.sliderMaxLeft': maxLeft, //滑块滑动比例
+          'slider.sliderMaxValue': maxValue, //价格滑块最大值
       })
     },
     endSlider(e) {
